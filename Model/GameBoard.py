@@ -123,8 +123,6 @@ class GameBoard:
                 aMove.append(self.SPLIT)
                 aMove.append(leftHand)
                 aMove.append(rightHand)
-                print("number on the left hand", leftHand )
-                print("number on the right hand", rightHand -i )
                 moveList.append(aMove)
 
 
@@ -232,7 +230,6 @@ class GameBoard:
         if (self.isGameOver()):
             return
 
-        print(move)
 
         # if the move was SPLIT move 
         if (self.isSplitMove(move)):
@@ -264,14 +261,15 @@ class GameBoard:
 
         
         
-    def heuristic(self,playerId):
-        # this will evaluate how manyy players are currnt alive ohter then itself
-        numberOfPlayers = 0
-        for playerBoard  in self.board:
-            if(self.board[playerBoard].isPlayerAlive() and playerId != self.board[playerBoard].getId()):
-                numberOfPlayers +=1
+def heuristic(node,playerId):
+    # this will evaluate how manyy players are currnt alive ohter then itself
+    numberOfPlayers = 0
+    gameBoard = node.state.board
+    for playerBoard  in gameBoard:
+        if(gameBoard[playerBoard].isPlayerAlive() and playerId != gameBoard[playerBoard].getId()):
+             numberOfPlayers +=1
 
-        return numberOfPlayers
+    return numberOfPlayers
 
 
 
@@ -310,7 +308,7 @@ def runParanoidAlgo(gameState, depthLimit):
 
 
 
-def paranoid(node, depth=0, maximizing_playerId=1, currentPlayerId=1):
+def paranoid(node, depth=0, maximizing_playerId=1, currentPlayerId=1, heuristic = heuristic ):
         
         # count the number of nodes created
         global node_count
@@ -319,7 +317,8 @@ def paranoid(node, depth=0, maximizing_playerId=1, currentPlayerId=1):
        
 
         if (node.state.cutOff_test(depth)):
-            return node.score, node
+
+            return heuristic(node,currentPlayerId), node
 
         # if the current player is the maximzing player then its looking for the max value of the score
         if maximizing_playerId == currentPlayerId:
