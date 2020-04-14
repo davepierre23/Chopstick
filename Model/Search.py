@@ -27,18 +27,12 @@ class Search():
 
     def search(self):
 
-        logging.debug("Starting Depth First Search")
+        logging.debug("Starting Search")
 
         node = Node(self.initState,None,self.initState.cats.getCoordinate(),1,0)
-        if (node.state.isGoal()):
-            logging.debug("Goal has been reached")
-            return node
+  
 
-
-        goal= False
-        nodeList = LifoQueue()
-        nodeList.put(node)
-
+        
         visited = set()
 
         while(not(goal) and not(nodeList.empty())):
@@ -70,8 +64,7 @@ class Search():
             else:
                 logging.debug("I have visted this state")
 
-        self.goalNode = None
-        self.numOfVistedNodes = len(visited)
+        
         return nodeList
     def expand(self,node):
         succesors = []
@@ -112,5 +105,154 @@ class Search():
         numOfMouse = self.initState.mouses.numOfSteps
         return searchName, numOfMouse,numofExploredNodes , numOfMoves
 
+
+def runParanoidAlgo(gameState):
+     node = Node(gameState,None,self.initState.cats.getCoordinate(),1,0)
+
+
+def paranoid(node, depth=0, maximizing_player=1, currentPlayer=1):
+        
+        # count the number of nodes created
+        global node_count
+        node_count += 1
+
+       
+
+        if (self.cutOff_test(depth)):
+            return self.heuristic2(playerId), self
+
+        # if the current player is the maximzing player then its looking for the max value of the score
+        if maximizing_player == currentPlayer:
+            best_value = -math.inf
+            best_move = None
+            moves, succesorsStates = beginGeneratingAllMoves(self.board, playerId)
+
+            for (move, childState) in zip(moves, succesorsStates):
+                logging.debug(move)
+                #printBoard(childState)
+
+                childState.parent = self
+                childState.action = move
+                goodValue, goodMove= childState.paranoid(depth - 1, maximizing_player, self.flipPlayer(playerId))
+                # making sure if two states has the same value it just stays with the current best move
+                if (best_value != goodValue):
+                    best_value = max(best_value, goodValue)
+                    # it means that the good move was better and its now currently the best move
+                    if goodValue == best_value:
+                        best_move = goodMove
+            return best_value, best_move
+        else:
+            best_value = math.inf
+            moves, succesorsStates = beginGeneratingAllMoves(self.board, playerId)
+
+            for (move, childState) in zip(moves, succesorsStates):
+                #print(move)
+                #printBoard(childState)
+
+                childState.parent = self
+                childState.action = move
+                goodValue, goodMove= childState.paranoid(depth - 1, not maximizing_player, self.flipPlayer(playerId))
+                # making sure if two states has the same value it just stays with the current best move
+                if (best_value != goodValue):
+                    best_value = min(best_value, goodValue)
+                    # it means that the good move was better and its now currently the best move
+                    if goodValue == best_value:
+                        best_move = goodMove
+
+            return best_value, best_move
+
+    def max_n(self, depth=0,currentPlayer=1):
+        
+        # count the number of nodes created
+        global node_count
+        node_count += 1
+
+        if (self.cutOff_test(depth)):
+            return self.heuristic2(currentPlayer), self
+
+        else:
+            best_value = -math.inf
+            all_score = []
+            best_move = None
+            moves, succesorsStates = beginGeneratingAllMoves(self.board, currentPlayer)
+
+            for (move, childState) in zip(moves, succesorsStates):
+                logging.debug(move)
+                #printBoard(childState)
+
+                childState.parent = self
+                childState.action = move
+                goodValue, goodMove= childState.max_n(depth - 1, self.flipPlayer(currentPlayer))
+
+                # making sure if two states has the same value it just stays with the current best move
+                if (best_value != goodValue):
+                    best_value = max(best_value, goodValue[currentPlayer])
+                    # it means that the good move was better and its now currently the best move
+                    if goodValue == best_value:
+                        best_move = goodMove
+
+            return best_value, best_move
+    
+    
+    def mini_max_alpha_beta(self, depth=0, maximizing_player=False, playerId=1,  alpha= - 1000000000, beta=1000000000, heur =1):
+        global node_count
+        node_count += 1
+
+
+        if (self.cutOff_test(depth)):
+            if(heur==2):
+                return self.heuristic2(playerId), self
+            else:
+                return self.heuristic1(playerId), self
+
+        if maximizing_player:
+            best_value = -math.inf
+            best_move = None
+            moves, succesorsStates = beginGeneratingAllMoves(self.board, playerId)
+
+            for (move, childState) in zip(moves, succesorsStates):
+                logging.debug(move)
+                #printBoard(childState)
+
+                childState.parent = self
+                childState.action = move
+                goodValue, goodMove= childState.mini_max_alpha_beta(depth - 1, not maximizing_player, self.flipPlayer(playerId), alpha, beta, heur)
+                # making sure if two states has the same value it just stays with the current best move
+                if (best_value != goodValue):
+                    best_value = max(best_value, goodValue)
+                    alpha = max(alpha,goodValue)
+                    # it means that the good move was better and its now currently the best move
+                    if goodValue == best_value:
+                        best_move = goodMove
+
+                if(beta <= alpha):
+                    break
+
+
+            return best_value, best_move
+        else:
+            best_value = math.inf
+            moves, succesorsStates = beginGeneratingAllMoves(self.board, playerId)
+
+            for (move, childState) in zip(moves, succesorsStates):
+                logging.debug(move)
+                #printBoard(childState)
+
+                childState.parent = self
+                childState.action = move
+                goodValue, goodMove= childState.mini_max_alpha_beta(depth - 1, not maximizing_player, self.flipPlayer(playerId), alpha, beta,heur)
+                # making sure if two states has the same value it just stays with the current best move
+                if (best_value != goodValue):
+                    best_value = min(best_value, goodValue)
+                    beta = min(beta, goodValue)
+                    # it means that the good move was better and its now currently the best move
+                    if goodValue == best_value:
+                        best_move = goodMove
+
+                    if (beta <= alpha):
+                        break
+
+
+            return best_value, best_move
 
 
