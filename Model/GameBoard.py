@@ -14,13 +14,12 @@ node_count = 0
 class GameBoard:
     HIT = 0
     SPLIT = 1
-    def __init__(self, board,  currentIndex=1):
+    def __init__(self,numPlayer =4,currentIndex=1):
         self.IsGameOver = False  # to see if tis gameover
-        self.board = createGameBoard()
-        self.currentIndex = currentIndex
-        self.childNodes = None
-        self.action = None
-        self.parent= None
+        self.board = self.createGameBoard(numPlayer)
+        self.NumPlayer = 4
+        self.currentPlayer = currentIndex
+   
 
 
     def __eq__(self, other):
@@ -36,23 +35,28 @@ class GameBoard:
         #Game board that has all the player chopstick
         gameBoard= {}
         for playerId in range(1,numberOfPlayers+1):
-            gameBoard[i] = PlayerHands(playerId)
+            gameBoard[playerId] = PlayerHands(playerId)
 
         return gameBoard    
 
 
     def toString(self):
-        return self.board
+        stringVersion = ""
+        for boardId in self.board:
+            stringVersion += self.board[boardId].toString()
+            stringVersion +="\n"
 
-    def getPlayerHand(playerId):
-        return self.board[playerId]
+        return stringVersion
+
+  
+    def getPlayerHandAt(self, index):
+        return self.board[index]
 
     def equals(self, other):
         # if every piece in the mancala are equal
         return self.board == other.board
 
-    def getPlayerHandAt(self, index):
-        return self.board[index]
+
 
     def isGameOver(self):
 
@@ -99,7 +103,7 @@ class GameBoard:
     def generateSplitPossibleMoves(self,playerId):
 
         #get playerBoard
-        playerBoard = getPlayerHand(playerId)
+        playerBoard = self.getPlayerHandAt(playerId)
 
         #
         totalNumSticks = 0 
@@ -137,7 +141,7 @@ class GameBoard:
 
 
         moveList = []
-        playerTurn = getPlayerHand(playerId)
+        playerTurn = self.getPlayerHandAt(playerId)
         for playerBoard in self.board:
             # if the player does not have the same player ID has the playerBoard
             if(playerId != playerBoard.getId()):
@@ -195,7 +199,7 @@ class GameBoard:
 
 
     def applySplitChoice(self,playerId,move):
-        playerBoard = getPlayerHand(playerId)
+        playerBoard = self.getPlayerHandAt(playerId)
 
         leftHand = move[1]
         rightHand = move[2]
@@ -204,12 +208,12 @@ class GameBoard:
         playerBoard.setNumOfStickRightHand(rightHand)
 
     def applyHitChoice(self,playerId,move):
-        playerBoard = getPlayerHand(playerId)
+        playerBoard = self.getPlayerHandAt(playerId)
 
         currentPlayerHandChoice = move[1]
         playerHandChoiceNumber = playerBoard.getHandOfChoice(currentPlayerHandChoice)
 
-        playerHandToHit = getPlayerHand(move[2])
+        playerHandToHit = self.getPlayerHandAt(move[2])
         oppHand = move[1]
         playerHandToHit.hit(oppHand,playerHandChoiceNumber)
 
@@ -245,11 +249,22 @@ class GameBoard:
     def cutOff_test(self, depth):
         return self.isGameOver() or depth == 0
 
-    def flipPlayer(self, playerId):
-        if playerId == 1:
-            return 2
-        else:
-            return 1
+    def changePlayer(self, playerId):
+        
+        nextPlayerId = playerId +1
+        while nextPlayerId != playerId :
+            if nextPlayerId == self. numPlayer +1 :
+                nextPlayerId =1
+
+            nextPlayerBoard = self.getPlayerHandAt(nextPlayerId)
+            #the next player should have at least one Hand alive
+            if(nextPlayerBoard.isPlayerAlive()):
+                return nextPlayerBoard.getId()
+        
+        print("I have only one person left ")
+
+        
+        
     def heuristic(self,playerId):
         # this will evaluate how manyy players are currnt alive ohter then itself
         numberOfPlayers = 0
@@ -258,7 +273,25 @@ class GameBoard:
                 numberOfPlayers +=1
 
         return numberOfPlayers
+
+
+
+
+#Algorithems for the AI
+
+def generateChildState(initNode, currentPlayerId):
+
+    possibleMoves = initNode.state.generateAllPossibleMoves()
+
+    childNodeList= []
+    for move in possibleMoves:
+        childState = deepcopy(initNode.state)
+        childState.make_move(move,currentPlayerId)
+        childNode= Node(childState,initNode,move,initNode.depth +1)
+        childNodeList.append(childState)
     
+    return childNodeList
+  
 def paranoid(game,playerId,depth=2):
    
 
@@ -312,7 +345,7 @@ def paranoid(node, depth=0, maximizing_playerId=1, currentPlayerId=1):
                 print(childNode)
 
                 
-                goodValue, goodNode= paranoid(childNode,depth - 1, maximizing_playerId, childNode.state.flipPlayer(currentPlayerId))
+                goodValue, goodNode= paranoid(childNode,depth - 1, maximizing_playerId, childNode.state.changePlayer(currentPlayerId))
                 # making sure if two states has the same value it just stays with the current best move
                 if (best_value != goodValue):
                     best_value = max(best_value, goodValue)
@@ -330,7 +363,7 @@ def paranoid(node, depth=0, maximizing_playerId=1, currentPlayerId=1):
                 print(childNode)
 
                 
-                goodValue, goodNode= paranoid(childNode, depth - 1, maximizing_playerId, childNode.state.flipPlayer(currentPlayerId))
+                goodValue, goodNode= paranoid(childNode, depth - 1, maximizing_playerId, childNode.state.changePlayer(currentPlayerId))
                 # making sure if two states has the same value it just stays with the current best move
                 if (best_value != goodValue):
                     best_value = min(best_value, goodValue)
@@ -340,223 +373,39 @@ def paranoid(node, depth=0, maximizing_playerId=1, currentPlayerId=1):
 
             return best_value, goodNode
 
-
-    def max_n(self, depth=0,currentPlayer=1):
+#TODO MAX -N
+    # def max_n(self, depth=0,currentPlayer=1):
         
-        # count the number of nodes created
-        global node_count
-        node_count += 1
+    #     # count the number of nodes created
+    #     global node_count
+    #     node_count += 1
 
-        if (self.cutOff_test(depth)):
-            return self.heuristic2(currentPlayer), self
+    #     if (self.cutOff_test(depth)):
+    #         return self.heuristic2(currentPlayer), self
 
-        else:
-            best_value = -math.inf
-            all_score = []
-            best_move = None
-            moves, succesorsStates = beginGeneratingAllMoves(self.board, currentPlayer)
+    #     else:
+    #         best_value = -math.inf
+    #         all_score = []
+    #         best_move = None
+    #         moves, succesorsStates = beginGeneratingAllMoves(self.board, currentPlayer)
 
-            for (move, childState) in zip(moves, succesorsStates):
-                logging.debug(move)
-                #printBoard(childState)
+    #         for (move, childState) in zip(moves, succesorsStates):
+    #             logging.debug(move)
+    #             #printBoard(childState)
 
-                childState.parent = self
-                childState.action = move
-                goodValue, goodMove= childState.max_n(depth - 1, self.flipPlayer(currentPlayer))
+    #             childState.parent = self
+    #             childState.action = move
+    #             goodValue, goodMove= childState.max_n(depth - 1, self.changePlayer(currentPlayer))
 
-                # making sure if two states has the same value it just stays with the current best move
-                if (best_value != goodValue):
-                    best_value = max(best_value, goodValue[currentPlayer])
-                    # it means that the good move was better and its now currently the best move
-                    if goodValue == best_value:
-                        best_move = goodMove
+    #             # making sure if two states has the same value it just stays with the current best move
+    #             if (best_value != goodValue):
+    #                 best_value = max(best_value, goodValue[currentPlayer])
+    #                 # it means that the good move was better and its now currently the best move
+    #                 if goodValue == best_value:
+    #                     best_move = goodMove
 
-            return best_value, best_move
+    #         return best_value, best_move
     
-
-
-    def mini_max(self, depth=0, maximizing_player=False, playerId=1):
-        global node_count
-        node_count += 1
-
-
-        if (self.cutOff_test(depth)):
-            return self.heuristic(playerId), self
-
-        if maximizing_player:
-            best_value = -math.inf
-            best_move = None
-            moves, succesorsStates = beginGeneratingAllMoves(self.board, playerId)
-
-            for (move, childState) in zip(moves, succesorsStates):
-                logging.debug(move)
-                #printBoard(childState)
-
-                childState.parent = self
-                childState.action = move
-                goodValue, goodMove= childState.mini_max(depth - 1, not maximizing_player, self.flipPlayer(playerId))
-                # making sure if two states has the same value it just stays with the current best move
-                if (best_value != goodValue):
-                    best_value = max(best_value, goodValue)
-                    # it means that the good move was better and its now currently the best move
-                    if goodValue == best_value:
-                        best_move = goodMove
-            return best_value, best_move
-        else:
-            best_value = math.inf
-            moves, succesorsStates = beginGeneratingAllMoves(self.board, playerId)
-
-            for (move, childState) in zip(moves, succesorsStates):
-                #print(move)
-                #printBoard(childState)
-
-                childState.parent = self
-                childState.action = move
-                goodValue, goodMove= childState.mini_max(depth - 1, not maximizing_player, self.flipPlayer(playerId))
-                # making sure if two states has the same value it just stays with the current best move
-                if (best_value != goodValue):
-                    best_value = min(best_value, goodValue)
-                    # it means that the good move was better and its now currently the best move
-                    if goodValue == best_value:
-                        best_move = goodMove
-
-            return best_value, best_move
-    def mini_max_alpha_beta(self, depth=0, maximizing_player=False, playerId=1,  alpha= - 1000000000, beta=1000000000, heur =1):
-        global node_count
-        node_count += 1
-
-
-        if (self.cutOff_test(depth)):
-            if(heur==2):
-                return self.heuristic2(playerId), self
-            else:
-                return self.heuristic1(playerId), self
-
-        if maximizing_player:
-            best_value = -math.inf
-            best_move = None
-            moves, succesorsStates = beginGeneratingAllMoves(self.board, playerId)
-
-            for (move, childState) in zip(moves, succesorsStates):
-                logging.debug(move)
-                #printBoard(childState)
-
-                childState.parent = self
-                childState.action = move
-                goodValue, goodMove= childState.mini_max_alpha_beta(depth - 1, not maximizing_player, self.flipPlayer(playerId), alpha, beta, heur)
-                # making sure if two states has the same value it just stays with the current best move
-                if (best_value != goodValue):
-                    best_value = max(best_value, goodValue)
-                    alpha = max(alpha,goodValue)
-                    # it means that the good move was better and its now currently the best move
-                    if goodValue == best_value:
-                        best_move = goodMove
-
-                if(beta <= alpha):
-                    break
-
-
-            return best_value, best_move
-        else:
-            best_value = math.inf
-            moves, succesorsStates = beginGeneratingAllMoves(self.board, playerId)
-
-            for (move, childState) in zip(moves, succesorsStates):
-                logging.debug(move)
-                #printBoard(childState)
-
-                childState.parent = self
-                childState.action = move
-                goodValue, goodMove= childState.mini_max_alpha_beta(depth - 1, not maximizing_player, self.flipPlayer(playerId), alpha, beta,heur)
-                # making sure if two states has the same value it just stays with the current best move
-                if (best_value != goodValue):
-                    best_value = min(best_value, goodValue)
-                    beta = min(beta, goodValue)
-                    # it means that the good move was better and its now currently the best move
-                    if goodValue == best_value:
-                        best_move = goodMove
-
-                    if (beta <= alpha):
-                        break
-
-
-            return best_value, best_move
-
-
-
-def generateChildState(initNode, currentPlayerId):
-
-    possibleMoves = initNode.state.generateAllPossibleMoves()
-
-    childNodeList= []
-    for move in possibleMoves:
-        childState = deepcopy(initNode.state)
-        childState.make_move(move,currentPlayerId)
-        childNode= Node(childState,initNode,move,initNode.depth +1)
-        childNodeList.append(childState)
-    
-    return childNodeList
-
-
-
-
-
-
-
-def miniMax(board,playerId,depth=2):
-    # 24 array to be copied
-    print("IntialState")
-
-    newboard = deepcopy(board)
-
-    # create a state
-    intialState = SimulatedBoard(newboard)
-    #printBoard(intialState)
-
-    score, moves = intialState.mini_max(depth,True,playerId)
-    print("MiniMax Results")
-    print("score",score)
-    global node_count
-    print("node", node_count)
-    node_count = 0
-    move = getParent(moves).pop(1).action
-    print("action", move)
-
-
-    return move
-
-
-
-
-def miniMaxAlphaBeta(board,playerId, depth=2):
-    # 24 array to be copied
-    print("Starting Aplha Beta search")
-    newboard = deepcopy(board)
-
-    # create a state
-    intialState = SimulatedBoard(newboard)
-    #printBoard(intialState)
-
-    score, moves = intialState.mini_max_alpha_beta(depth,True,playerId, heur =playerId)
-    print("AlphaBeta Results:")
-
-    moves = getParent(moves)
-    if(len(moves)>1):
-
-        move= moves.pop(1).action
-        print("action", move)
-    else:
-        print(moves)
-        moves , states = beginGeneratingAllMoves(board,playerId)
-        move = moves[0]
-        print()
-
-    global node_count
-    print("node", node_count)
-    node_count = 0
-
-    print("Ending search ")
-    return move
 
 
 def get_path(node):
@@ -582,6 +431,7 @@ def getParent(node):
 
 
 if __name__ == '__main__':
-    pass
+    game = GameBoard(4,1)
+    print(game)
 
 

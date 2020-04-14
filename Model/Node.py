@@ -1,4 +1,3 @@
-z
 class Node():
     def __init__(self,state,parent,action,depth):
         self.state = state #used has the state of the game
