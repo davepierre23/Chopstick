@@ -17,7 +17,7 @@ class GameBoard:
     def __init__(self,numPlayer =4,currentIndex=1):
         self.IsGameOver = False  # to see if tis gameover
         self.board = self.createGameBoard(numPlayer)
-        self.NumPlayer = 4
+        self.numPlayer = numPlayer
         self.currentPlayer = currentIndex
    
 
@@ -62,7 +62,7 @@ class GameBoard:
 
         numberOfAlive = 0
         for playerBoard in self.board:
-            if(playerBoard.isPlayerAlive()):
+            if(self.board[playerBoard].isPlayerAlive()):
                 numberOfAlive += 1
         
         return numberOfAlive == 1 
@@ -137,12 +137,13 @@ class GameBoard:
 
         return moveList
 
-    def generateHitPossibleMoves(self,playerId, move):
+    def generateHitPossibleMoves(self,playerId):
 
 
         moveList = []
         playerTurn = self.getPlayerHandAt(playerId)
-        for playerBoard in self.board:
+        for aPlayerId in self.board:
+            playerBoard = self.board[aPlayerId]
             # if the player does not have the same player ID has the playerBoard
             if(playerId != playerBoard.getId()):
                 if(playerTurn.isLeftHandAlive()):
@@ -227,13 +228,11 @@ class GameBoard:
         return move[0] == self.HIT
 
 
-    def make_move(self,currentPlayerId, move):
+    def make_move(self,move, currentPlayerId):
         if (self.isGameOver()):
             return
 
-         
-
-       
+        print(move)
 
         # if the move was SPLIT move 
         if (self.isSplitMove(move)):
@@ -253,7 +252,7 @@ class GameBoard:
         
         nextPlayerId = playerId +1
         while nextPlayerId != playerId :
-            if nextPlayerId == self. numPlayer +1 :
+            if nextPlayerId == self.numPlayer +1 :
                 nextPlayerId =1
 
             nextPlayerBoard = self.getPlayerHandAt(nextPlayerId)
@@ -269,7 +268,7 @@ class GameBoard:
         # this will evaluate how manyy players are currnt alive ohter then itself
         numberOfPlayers = 0
         for playerBoard  in self.board:
-            if(playerBoard.isPlayerAlive() and playerId != playerBoard.getId()):
+            if(self.board[playerBoard].isPlayerAlive() and playerId != self.board[playerBoard].getId()):
                 numberOfPlayers +=1
 
         return numberOfPlayers
@@ -281,31 +280,17 @@ class GameBoard:
 
 def generateChildState(initNode, currentPlayerId):
 
-    possibleMoves = initNode.state.generateAllPossibleMoves()
+    possibleMoves = initNode.state.generateAllPossibleMoves(currentPlayerId)
 
     childNodeList= []
     for move in possibleMoves:
         childState = deepcopy(initNode.state)
         childState.make_move(move,currentPlayerId)
         childNode= Node(childState,initNode,move,initNode.depth +1)
-        childNodeList.append(childState)
+        childNodeList.append(childNode)
     
     return childNodeList
-  
-def paranoid(game,playerId,depth=2):
-   
 
-    copyGame = deepcopy(game)
-    # create a state
-    intialState = SimulatedBoard(newboard)
-    #printBoard(intialState)
-
-    score, moves = intialState.mini_max(depth,True,playerId)
-    print("MiniMax Results")
-    
-   
-
-    return move
 def runParanoidAlgo(gameState, depthLimit):
      print("Paranoid")
      copyGame = deepcopy(gameState)
@@ -313,12 +298,13 @@ def runParanoidAlgo(gameState, depthLimit):
      maximizingPlayerId = 1
      currentPlayerId = 1
      score, bestNode =paranoid(node,depthLimit,maximizingPlayerId,currentPlayerId)
+     print(bestNode)
 
      global node_count
      print("node", node_count)
      node_count = 0
-     move = getParent(bestNode).pop(1).action
-     print("action", move)
+    #  move = getParent(bestNode).pop(1).action
+    #  print("action", move)
 
 
 
@@ -373,39 +359,130 @@ def paranoid(node, depth=0, maximizing_playerId=1, currentPlayerId=1):
 
             return best_value, goodNode
 
+
 #TODO MAX -N
-    # def max_n(self, depth=0,currentPlayer=1):
+def runMax_nAlgo(gameState, depthLimit):
+     print("Max-N")
+     copyGame = deepcopy(gameState)
+     node = Node(copyGame,None,None,0)
+     maximizingPlayerId = 1
+     currentPlayerId = 1
+     score, bestNode =max_n(node,depthLimit,maximizingPlayerId,currentPlayerId)
+     print(bestNode)
+
+     global node_count
+     print("node", node_count)
+     node_count = 0
+    #  move = getParent(bestNode).pop(1).action
+    #  print("action", move)
+
+
+
+
+#TODO: check to see if this works
+def max_n(node, depth=0, maximizing_playerId=1, currentPlayerId=1):
         
-    #     # count the number of nodes created
-    #     global node_count
-    #     node_count += 1
+        # count the number of nodes created
+        global node_count
+        node_count += 1
 
-    #     if (self.cutOff_test(depth)):
-    #         return self.heuristic2(currentPlayer), self
+       
 
-    #     else:
-    #         best_value = -math.inf
-    #         all_score = []
-    #         best_move = None
-    #         moves, succesorsStates = beginGeneratingAllMoves(self.board, currentPlayer)
+        if (node.state.cutOff_test(depth)):
+            return node.score, node
 
-    #         for (move, childState) in zip(moves, succesorsStates):
-    #             logging.debug(move)
-    #             #printBoard(childState)
+        # if the current player is the maximzing player then its looking for the max value of the score
+        else:
+           
+            best_value = -math.inf
+            scoresOfAll = []
+            best_node = None
+            childNodeList = generateChildState(node,currentPlayerId)
 
-    #             childState.parent = self
-    #             childState.action = move
-    #             goodValue, goodMove= childState.max_n(depth - 1, self.changePlayer(currentPlayer))
+            for childNode in childNodeList:
+                print(childNode)
+                
+                goodValue, goodNode= max_n(childNode,depth - 1, maximizing_playerId, childNode.state.changePlayer(currentPlayerId))
+                # making sure if two states has the same value it just stays with the current best move
+                if (best_value != goodValue):
+                    best_value = max(best_value, goodValue)
+                    # it means that the good move was better and its now currently the best move
+                    if goodValue == best_value:
+                        scoresOfAll = max_n(childNode.depth -1)
+                        best_node = goodNode
 
-    #             # making sure if two states has the same value it just stays with the current best move
-    #             if (best_value != goodValue):
-    #                 best_value = max(best_value, goodValue[currentPlayer])
-    #                 # it means that the good move was better and its now currently the best move
-    #                 if goodValue == best_value:
-    #                     best_move = goodMove
+            return scoresOfAll, goodNode
+       
 
-    #         return best_value, best_move
-    
+#TODO MAX -N
+def runBest_ReplyAlgo(gameState, depthLimit):
+     print("Best-Reply Algorithem")
+     copyGame = deepcopy(gameState)
+     node = Node(copyGame,None,None,0)
+     maximizingPlayerId = True
+     currentPlayerId = 1
+     score, bestNode =max_n(node,depthLimit,maximizingPlayerId,currentPlayerId)
+     print(bestNode)
+
+     global node_count
+     print("node", node_count)
+     node_count = 0
+    #  move = getParent(bestNode).pop(1).action
+    #  print("action", move)
+
+
+
+
+
+def best_reply(node, depth=0, maximizing_playerId = True, currentPlayerId=1):
+
+        
+    # count the number of nodes created
+    global node_count
+    node_count += 1
+    if (node.state.cutOff_test(depth)):
+        return node.score, node
+
+    # if the current player is the maximzing player then its looking for the max value of the score
+    if maximizing_playerId:
+        best_value = -math.inf
+        best_node = None
+        childNodeList = generateChildState(node,currentPlayerId)
+        
+        for childNode in childNodeList:
+            print(childNode)
+
+            goodValue, goodNode= best_reply(childNode,depth - 1, maximizing_playerId, childNode.state.changePlayer(currentPlayerId))
+            # making sure if two states has the same value it just stays with the current best move
+            if (best_value != goodValue):
+                best_value = max(best_value, goodValue)
+                 # it means that the good move was better and its now currently the best move
+                if goodValue == best_value:
+                    best_node = goodNode
+
+        return best_value, goodNode
+    else:
+
+
+        # for all oppoenents do 
+        # need to implement 
+
+        best_value = math.inf
+        childNodeList = generateChildState(node,currentPlayerId)
+        
+        for childNode in childNodeList:
+            print(childNode)
+
+            goodValue, goodNode= paranoid(childNode, depth - 1, maximizing_playerId, childNode.state.changePlayer(currentPlayerId))
+                # making sure if two states has the same value it just stays with the current best move
+            if (best_value != goodValue):
+                best_value = min(best_value, goodValue)
+                 # it means that the good move was better and its now currently the best move
+                if goodValue == best_value:
+                    best_node = goodNode
+
+        return best_value, goodNode
+
 
 
 def get_path(node):
@@ -432,6 +509,7 @@ def getParent(node):
 
 if __name__ == '__main__':
     game = GameBoard(4,1)
-    print(game)
+
+    runParanoidAlgo(game,1)
 
 

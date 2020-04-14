@@ -3,11 +3,11 @@ class Node():
         self.state = state #used has the state of the game
         self.parent = parent # used to keep track of the parent
         self.action = action # the action of the gameState
-        self.score = state.heuristic() # gameState using heuristic
+        self.score = state.heuristic(1) # gameState using heuristic
         self.depth = depth  # the depth of it
   
     def __str__(self):
-        return str(self.action)
+        return str(self.state)
 
     def __eq__(self, other):
         return self.state == other.state
