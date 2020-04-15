@@ -10,6 +10,15 @@ class Node():
         string += "\n"
         string += "depth : " + str(self.depth)
         return string
+    def __repr__(self):
+        return self.toString()
+
+    def toString(self):
+        string = str(self.state)
+        string += "\n"
+        string += "depth : " + str(self.depth)
+        return string
+
 
     def __eq__(self, other):
         return self.state == other.state
