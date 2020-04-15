@@ -43,7 +43,7 @@ class GameBoard:
     def toString(self):
         stringVersion = ""
         for boardId in self.board:
-            stringVersion += self.board[boardId].toString()
+            stringVersion += str(self.board[boardId])
             stringVersion +="\n"
 
         return stringVersion
@@ -113,17 +113,28 @@ class GameBoard:
         totalNumSticks += leftHandNum
         totalNumSticks += rightHandNum
 
+
+
         # generate all the possible ways to split 
         moveList = []
-        for i in range(1,totalNumSticks):
-            leftHand = i 
+
+        # to check if dont want duplicates
+        # leftHandSeen = set()
+        # rightHandSeen = set()
+
+        if (totalNumSticks == 1):
+            return moveList
+        for i in range(0,totalNumSticks):
             rightHand = totalNumSticks - i
+            leftHand = i 
+
             if((leftHandNum != leftHand and rightHandNum != rightHand) or (leftHandNum != rightHand and rightHandNum != leftHand)  ):
-                aMove=[]
-                aMove.append(self.SPLIT)
-                aMove.append(leftHand)
-                aMove.append(rightHand)
-                moveList.append(aMove)
+                if(rightHand < playerBoard.LIMIT and leftHand < playerBoard.LIMIT):
+                    aMove=[]
+                    aMove.append(self.SPLIT)
+                    aMove.append(leftHand)
+                    aMove.append(rightHand)
+                    moveList.append(aMove)
 
 
 
@@ -140,6 +151,12 @@ class GameBoard:
 
         moveList = []
         playerTurn = self.getPlayerHandAt(playerId)
+
+        #A move will be a list
+        # HIT or SPLIT : 0 index
+        # choice hand of had to hit with : 1 index
+        # playerID to hit with 2 index
+        # LEFT ot RIGHT to hit the other player hand : 3 index
         for aPlayerId in self.board:
             playerBoard = self.board[aPlayerId]
             # if the player does not have the same player ID has the playerBoard
@@ -147,12 +164,11 @@ class GameBoard:
                 if(playerTurn.isLeftHandAlive()):
                     leftToAttackChoice = playerTurn.LEFT
                     leftHitMove = []
-                    leftHitMove.append(self.HIT) # HIT or SPLIT 0 index
-                    leftHitMove.append(leftToAttackChoice) # choice hand of had to hit with 1 index
+                    leftHitMove.append(self.HIT)
+                    leftHitMove.append(leftToAttackChoice)
                     playerIdToHit = playerBoard.getId()
-                    leftHitMove.append(playerIdToHit)  # playerID to hit with 2 index 
+                    leftHitMove.append(playerIdToHit)
 
-                    # playerHand index 3
 
 
                     # left hand hits the left hand of the other if both are alive
@@ -190,9 +206,6 @@ class GameBoard:
                         aMove = deepcopy(rightHitmove)
                         aMove.append(playerBoard.RIGHT)
                         moveList.append(aMove)
-                    
-
-
 
         return moveList
 
@@ -290,13 +303,14 @@ def generateChildState(initNode, currentPlayerId):
     return childNodeList
 
 def runParanoidAlgo(gameState, depthLimit):
+
      print("Paranoid")
      copyGame = deepcopy(gameState)
      node = Node(copyGame,None,None,0)
      maximizingPlayerId = 1
      currentPlayerId = 1
      score, bestNode =paranoid(node,depthLimit,maximizingPlayerId,currentPlayerId)
-     print(bestNode)
+     print("bestNode",bestNode)
 
      global node_count
      print("node", node_count)
@@ -327,7 +341,7 @@ def paranoid(node, depth=0, maximizing_playerId=1, currentPlayerId=1, heuristic 
             childNodeList = generateChildState(node,currentPlayerId)
 
             for childNode in childNodeList:
-                print(childNode)
+                print("Max Node",childNode)
 
                 
                 goodValue, goodNode= paranoid(childNode,depth - 1, maximizing_playerId, childNode.state.changePlayer(currentPlayerId))
@@ -338,14 +352,14 @@ def paranoid(node, depth=0, maximizing_playerId=1, currentPlayerId=1, heuristic 
                     if goodValue == best_value:
                         best_node = goodNode
 
-            return best_value, goodNode
+            return best_value, best_node
         else:
             best_value = math.inf
             childNodeList = generateChildState(node,currentPlayerId)
 
 
             for childNode in childNodeList:
-                print(childNode)
+                print("Min Node",childNode)
 
                 
                 goodValue, goodNode= paranoid(childNode, depth - 1, maximizing_playerId, childNode.state.changePlayer(currentPlayerId))
@@ -399,7 +413,7 @@ def max_n(node, depth=0, maximizing_playerId=1, currentPlayerId=1):
             childNodeList = generateChildState(node,currentPlayerId)
 
             for childNode in childNodeList:
-                print(childNode)
+
                 
                 goodValue, goodNode= max_n(childNode,depth - 1, maximizing_playerId, childNode.state.changePlayer(currentPlayerId))
                 # making sure if two states has the same value it just stays with the current best move
@@ -509,6 +523,6 @@ def getParent(node):
 if __name__ == '__main__':
     game = GameBoard(4,1)
 
-    runParanoidAlgo(game,1)
+    runParanoidAlgo(game,2)
 
 

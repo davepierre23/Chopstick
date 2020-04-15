@@ -6,7 +6,10 @@ class Node():
         self.depth = depth  # the depth of it
   
     def __str__(self):
-        return str(self.state)
+        string = str(self.state)
+        string += "\n"
+        string += "depth : " + str(self.depth)
+        return string
 
     def __eq__(self, other):
         return self.state == other.state

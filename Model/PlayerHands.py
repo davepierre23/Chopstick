@@ -18,14 +18,17 @@ class PlayerHands:
         return self.equals(other)
 
     def __str__(self):
-        return self.toString()
+        return self.toEasierString()
 
     def __repr__(self):
-        return self.toString()
+        return self.toEasierString()
 
 
     def toString(self):
         return  "ID = " + str(self.id)+ "\nNumber of chopsticks on the left " + str(self.choperStickHolder[self.LEFT]) +   "\n Number of chopsticks on the right " + str(self.choperStickHolder[self.RIGHT])
+
+    def toEasierString(self):
+        return  "ID = " + str(self.id)+ " :" + str(self.choperStickHolder)
 
     def equals(self, other):
         return self.id == other.id
@@ -82,4 +85,3 @@ if __name__ == "__main__":
     playerBoard.hit(1,9)
     print(playerBoard.getHandOfChoice(1))
     print(playerBoard)
-  
