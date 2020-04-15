@@ -6,84 +6,44 @@ class ChopStickGame:
 
         numOfPlayers = self.getGameInput()
         self.board = GameBoard(numOfPlayers)
-        self.players = self.createPlayers(numOfPlayers)
         self.currentPlayer =1  # returns random player
 
-    def switchPlayer(self):
-        if (self.currentPlayer ==1):
-            self.currentPlayer =2
-        else :
-            self.currentPlayer =1
-
-        print(self.getCurrentPlayer())
+    def changePlayer(self):
+        self.currentPlayer = self.board.changePlayer(self.currentPlayer)
 
     def getCurrentPlayerId(self):
         return self.currentPlayer
+
     def getCurrentPlayer(self):
         currentPlayer = self.players[self.currentPlayer-1]
         return currentPlayer
 
-    def createPlayers(self, gameMode):
-        players = []
-        if (gameMode == 1):
-            players.append(self.createHumanPlayer(1))
-            choiceheuristic = int(input("Enter 1 for heuristic one and 2 for heuristic"))
-
-            while choiceheuristic != 1 and choiceheuristic != 2:
-                choiceheuristic = int(input("Enter 1 for heuristic one and 2 for heuristic"))
-
-            players.append(self.createAiPlayer(2,choiceheuristic))
-
-        elif(gameMode ==2):
-            players.append(self.createAiPlayer(1, 1))
-            players.append(self.createAiPlayer(2, 2))
-
-
-        elif (gameMode == 3):
-            players.append(self.createHumanPlayer(1))
-            players.append(self.createHumanPlayer(2))
-
-
-        return players
-
-
-
-
-    def createHumanPlayer(self,playerId):
-        hplayer = HumanPlayer(playerId)
-        return hplayer
-    def createAiPlayer(self,playerId, heuristicNumber):
-        aiPlayer = AiPlayer(playerId,heuristicNumber)
-        return aiPlayer
-
-
     def getGameInput(self):
         print("How many Players would you like for Chopsticks")
-       
 
         numPlayers = -1
         
         while(numPlayers<0):
             numPlayers = int(input("Enter your choice now for the number Of Players"))
 
-
+        return numPlayers
     def rungame(self):
-        print("Intial State")
-        printBoard(self.board)
-        input("ENTER TO CON")
 
+        numOfRounds =0
         while (not(self.board.isGameOver())):
+            numOfRounds += 1
             print("Currently Player " + str(self.getCurrentPlayerId())+" turn  ")
-            player = self.getCurrentPlayer()
-            self.board.make_move(player)
-            self.switchPlayer()
+            playerId = self.getCurrentPlayerId()
+            self.board.make_move(playerId)
 
+        print(self.board)
         self.board.getWinner()
-        printBoard(self.board)
+
+
 
 def main():
-    mancalaGame = Game()
-    mancalaGame.rungame()
+    game = ChopStickGame()
+    game.rungame()
 
 
 
