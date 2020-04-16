@@ -13,6 +13,9 @@ class Node():
     def __repr__(self):
         return self.toString()
 
+    def cutOff_test(self, depth):
+        return self.state.isGameOver() or depth == 0
+
     def toString(self):
         string = str(self.state)
         string += "\n"

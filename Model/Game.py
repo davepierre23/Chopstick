@@ -1,12 +1,15 @@
 
-from GameBoard import * 
+from GameBoard import *
+from AiPlayer import AiPlayer
 
 class ChopStickGame:
     def __init__(self):
 
         numOfPlayers = self.getGameInput()
         self.board = GameBoard(numOfPlayers)
+        self.players = self.createPlayers(self.board)
         self.currentPlayer =1  # returns random player
+
 
     def changePlayer(self):
         self.currentPlayer = self.board.changePlayer(self.currentPlayer)
@@ -26,7 +29,16 @@ class ChopStickGame:
         while(numPlayers<0):
             numPlayers = int(input("Enter your choice now for the number Of Players"))
 
+        self.players = self.createPlayers(numPlayers)
         return numPlayers
+
+    def createPlayers(self,gameBoard):
+
+        players = {}
+        for playerId in gameBoard.board:
+            players[playerId] = AiPlayer()
+
+        return gameBoard
     def rungame(self):
 
         numOfRounds =0
