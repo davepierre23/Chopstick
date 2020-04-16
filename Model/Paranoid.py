@@ -42,6 +42,8 @@ class Paranoid:
         print("node", node_count)
         node_count = 0
 
+
+
     #  move = getParent(bestNode).pop(1).action
     #  print("action", move)
 

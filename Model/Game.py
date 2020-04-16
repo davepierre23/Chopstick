@@ -1,11 +1,16 @@
 
 from GameBoard import *
 from AiPlayer import AiPlayer
+from Paranoid import Paranoid
+from Max_n import Max_n
+from BestReply import  BestReply
 
 class ChopStickGame:
+    numOfAlgo = 3
     def __init__(self):
 
-        numOfPlayers = self.getGameInput()
+        numOfPlayers = 4
+
         self.board = GameBoard(numOfPlayers)
         self.players = self.createPlayers(self.board)
         self.currentPlayer =1  # returns random player
@@ -18,8 +23,13 @@ class ChopStickGame:
         return self.currentPlayer
 
     def getCurrentPlayer(self):
-        currentPlayer = self.players[self.currentPlayer-1]
+        currentPlayer = self.players[self.currentPlayer]
         return currentPlayer
+
+    def getCurrentPlayerMove(self):
+        currentPlayer=self.getCurrentPlayer()
+        move = currentPlayer.getMove(self.board)
+        return move
 
     def getGameInput(self):
         print("How many Players would you like for Chopsticks")
@@ -29,16 +39,23 @@ class ChopStickGame:
         while(numPlayers<0):
             numPlayers = int(input("Enter your choice now for the number Of Players"))
 
-        self.players = self.createPlayers(numPlayers)
+
         return numPlayers
 
     def createPlayers(self,gameBoard):
 
         players = {}
         for playerId in gameBoard.board:
-            players[playerId] = AiPlayer()
+            if(playerId % self.numOfAlgo==1):
+                players[playerId] = AiPlayer(playerId,Paranoid())
 
-        return gameBoard
+            elif(playerId %self.numOfAlgo==2):
+                players[playerId] = AiPlayer(playerId, Max_n())
+
+            elif(playerId %self.numOfAlgo==3):
+                players[playerId] = AiPlayer(playerId, BestReply())
+
+        return players
     def rungame(self):
 
         numOfRounds =0
@@ -46,7 +63,10 @@ class ChopStickGame:
             numOfRounds += 1
             print("Currently Player " + str(self.getCurrentPlayerId())+" turn  ")
             playerId = self.getCurrentPlayerId()
-            self.board.make_move(playerId)
+            move = self.getCurrentPlayerMove()
+            self.board.make_move(playerId,move)
+
+            self.changePlayer()
 
         print(self.board)
         self.board.getWinner()
