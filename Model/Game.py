@@ -4,7 +4,7 @@ from AiPlayer import AiPlayer
 from Paranoid import Paranoid
 from Max_n import Max_n
 from BestReply import  BestReply
-
+import time
 class ChopStickGame:
     numOfAlgo = 3
     def __init__(self):
@@ -65,6 +65,7 @@ class ChopStickGame:
             playerId = self.getCurrentPlayerId()
             move = self.getCurrentPlayerMove()
             self.board.make_move(playerId,move)
+            print(self.board)
 
             self.changePlayer()
 

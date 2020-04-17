@@ -54,13 +54,15 @@ class PlayerHands:
         if(handChoice == self.LEFT):
             updatedSticks = self.getNumOfStickLeftHand() + numOfSticks
             updatedSticks = updatedSticks % self.LIMIT
-            self.setNumOfStickLeftHand(updatedSticks)
 
+            self.setNumOfStickLeftHand(updatedSticks)
 
         else:
             if(handChoice == self.RIGHT):
                 updatedSticks = self.getNumOfStickRightHand() + numOfSticks
                 updatedSticks = updatedSticks % self.LIMIT
+
+
                 self.setNumOfStickRightHand(updatedSticks)
 
 

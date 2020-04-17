@@ -33,7 +33,7 @@ class BestReply:
         path = get_path(bestNode)
         parent = getParent(bestNode)
         # print("node", node_count)
-        # print("bestNode", bestNode)
+        # print("bestNode", bestNzxzzzode)
         # print("parent", parent)
         # print(path)
         path.pop(0)

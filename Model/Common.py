@@ -1,6 +1,6 @@
 from copy import deepcopy
 from Node import Node
-
+import math
 def get_path(node):
     node
     path = []
@@ -30,7 +30,18 @@ def heuristic(node,playerId):
         if(gameBoard[playerBoard].isPlayerAlive() and playerId != gameBoard[playerBoard].getId()):
              numberOfPlayers +=1
 
-    return numberOfPlayers
+    if(not(gameBoard[playerId].isPlayerAlive())):
+        return -10000
+
+    else:
+        if(numberOfPlayers==1):
+            return 10
+        elif(numberOfPlayers==2):
+            return 5
+        else:
+            return 1
+
+
 
 
 def generateChildState(initNode, currentPlayerId):
