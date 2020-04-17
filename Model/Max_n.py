@@ -24,18 +24,22 @@ class Max_n:
         return self.name
 
 
-    def searchMove(self,gameState, depthLimit):
+    def searchMove(self,gameState, currentPlayerId,depthLimit=2):
         print("Max-N")
         copyGame = deepcopy(gameState)
         node = Node(copyGame, None, None, 0)
-
-        currentPlayerId = 1
         score, bestNode = self.max_n(node, depthLimit, currentPlayerId)
-        print(bestNode)
-
         global node_count
-        print("node", node_count)
+        path = get_path(bestNode)
+        parent = getParent(bestNode)
+        # print("node", node_count)
+        # print("bestNode", bestNode)
+        # print("parent", parent)
+        # print(path)
+        path.pop(0)
+        move = path.pop(0)
         node_count = 0
+        return move
 
 
 

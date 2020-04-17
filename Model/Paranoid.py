@@ -22,30 +22,30 @@ class Paranoid:
     def toString(self):
         return self.name
 
-    def searchMove(self,gameState, depthLimit=2):
+    def searchMove(self,gameState,  maximizingPlayerId,depthLimit=2):
 
         print("Paranoid")
         copyGame = deepcopy(gameState)
         node = Node(copyGame, None, None, 0)
-        maximizingPlayerId = 1
-        currentPlayerId = 1
-        score, bestNode = self.paranoid(node, depthLimit, maximizingPlayerId, currentPlayerId)
-        print("bestNode", bestNode)
+        score, bestNode = self.paranoid(node, depthLimit, maximizingPlayerId, maximizingPlayerId)
+
 
         path = get_path(bestNode)
         parent = getParent(bestNode)
-        print("parent", parent)
-
-        print(path)
-
+        # print("node", node_count)
+        # print("parent", parent)
+        # print("bestNode", bestNode)
+        # print(path)
         global node_count
-        print("node", node_count)
         node_count = 0
+        path.pop(0)
+        move = path.pop(0)
+
+        return move
 
 
 
-    #  move = getParent(bestNode).pop(1).action
-    #  print("action", move)
+
 
     def paranoid(self,node, depth=0, maximizing_playerId=1, currentPlayerId=1, heuristic=heuristic):
 
@@ -54,7 +54,7 @@ class Paranoid:
         node_count += 1
 
         if (node.state.cutOff_test(depth)):
-            print("node option", node)
+
             return heuristic(node, currentPlayerId), node
 
         # if the current player is the maximzing player then its looking for the max value of the score
@@ -65,8 +65,7 @@ class Paranoid:
 
             for childNode in childNodeList:
 
-                goodValue, goodNode = self.paranoid(childNode, depth - 1, maximizing_playerId,
-                                               childNode.state.changePlayer(currentPlayerId))
+                goodValue, goodNode = self.paranoid(childNode, depth - 1, maximizing_playerId,childNode.state.changePlayer(currentPlayerId),heuristic)
                 # making sure if two states has the same value it just stays with the current best move
                 if (best_value != goodValue):
                     best_value = max(best_value, goodValue)
@@ -81,8 +80,7 @@ class Paranoid:
 
             for childNode in childNodeList:
 
-                goodValue, goodNode = self.paranoid(childNode, depth - 1, maximizing_playerId,
-                                               childNode.state.changePlayer(currentPlayerId))
+                goodValue, goodNode = self.paranoid(childNode, depth - 1, maximizing_playerId,childNode.state.changePlayer(currentPlayerId),heuristic)
                 # making sure if two states has the same value it just stays with the current best move
                 if (best_value != goodValue):
                     best_value = min(best_value, goodValue)
@@ -90,4 +88,4 @@ class Paranoid:
                     if goodValue == best_value:
                         best_node = goodNode
 
-            return best_value, goodNode
+            return best_value, best_node

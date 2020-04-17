@@ -9,7 +9,7 @@ class ChopStickGame:
     numOfAlgo = 3
     def __init__(self):
 
-        numOfPlayers = 4
+        numOfPlayers = 3
 
         self.board = GameBoard(numOfPlayers)
         self.players = self.createPlayers(self.board)
@@ -46,13 +46,13 @@ class ChopStickGame:
 
         players = {}
         for playerId in gameBoard.board:
-            if(playerId % self.numOfAlgo==1):
+            if(playerId % self.numOfAlgo==0):
                 players[playerId] = AiPlayer(playerId,Paranoid())
 
-            elif(playerId %self.numOfAlgo==2):
+            elif(playerId %self.numOfAlgo==1):
                 players[playerId] = AiPlayer(playerId, Max_n())
 
-            elif(playerId %self.numOfAlgo==3):
+            elif(playerId %self.numOfAlgo==2):
                 players[playerId] = AiPlayer(playerId, BestReply())
 
         return players

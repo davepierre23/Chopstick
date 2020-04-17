@@ -10,7 +10,7 @@ class AiPlayer:
         return self.playerId
 
     def getMove(self, board):
-        move = self.algo.searchMove(board)
+        move = self.algo.searchMove(board,self.playerId)
         return move
 
 

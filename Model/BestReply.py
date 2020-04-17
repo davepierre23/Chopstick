@@ -23,21 +23,23 @@ class BestReply:
     def toString(self):
         return self.name
 
-    def searchMove(self,gameState, depthLimit):
+    def searchMove(self,gameState, currentPlayerID,depthLimit=2):
         print("Best-Reply Algorithem")
         copyGame = deepcopy(gameState)
         node = Node(copyGame, None, None, 0)
         isMaximizingPlayer = True
-        currentPlayerId = 1
-        score, bestNode = self.best_reply(node, depthLimit, isMaximizingPlayer, currentPlayerId)
-        print(bestNode)
-
+        score, bestNode = self.best_reply(node, depthLimit, isMaximizingPlayer, currentPlayerID)
         global node_count
-        print("node", node_count)
+        path = get_path(bestNode)
+        parent = getParent(bestNode)
+        # print("node", node_count)
+        # print("bestNode", bestNode)
+        # print("parent", parent)
+        # print(path)
+        path.pop(0)
+        move = path.pop(0)
         node_count = 0
-
-    #  move = getParent(bestNode).pop(1).action
-    #  print("action", move)
+        return move
 
     def best_reply(self,node, depth=0, isMaximizing=True, maximizingPlayerID=1, heuristic=heuristic):
 
@@ -56,7 +58,7 @@ class BestReply:
                 childNodeList = generateChildState(node, maximizingPlayerID)
 
                 for childNode in childNodeList:
-                    print(childNode)
+
 
                     goodValue, goodNode = self.best_reply(childNode, depth - 1, not (isMaximizing), maximizingPlayerID,
                                                      heuristic)
@@ -84,7 +86,7 @@ class BestReply:
                         childNodeList.append(child)
 
                 for childNode in childNodeList:
-                    print(childNode)
+
 
                     goodValue, goodNode = self.best_reply(childNode, depth - 1, not (isMaximizing), maximizingPlayerID,
                                                      heuristic)
