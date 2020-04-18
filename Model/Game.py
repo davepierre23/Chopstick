@@ -14,6 +14,7 @@ class ChopStickGame:
         self.board = GameBoard(numOfPlayers)
         self.players = self.createPlayers(self.board)
         self.currentPlayer =1  # returns random player
+        self.numRounds=0
 
 
     def changePlayer(self):

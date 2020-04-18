@@ -7,7 +7,7 @@ class PlayerHands:
     LIMIT =10
     def __init__(self,id):
         self.id = id
-        self.choperStickHolder = [1,1]
+        self.choperStickHolder = [4,4]
 
         #index 0 is number on left and
         # index 1 is number on right 
