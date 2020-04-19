@@ -4,27 +4,64 @@ from AiPlayer import AiPlayer
 from Paranoid import Paranoid
 from Max_n import Max_n
 from BestReply import  BestReply
+from RandomPlay import RandomPlay
+from copy import deepcopy
 import time
 class ChopStickGame:
     numOfAlgo = 3
     def __init__(self):
 
-        numOfPlayers = 3
-
-        self.board = GameBoard(numOfPlayers)
+        self.numOfPlayers = 3
+        self.board = GameBoard(self.numOfPlayers)
         self.players = self.createPlayers(self.board)
-        self.currentPlayer =1  # returns random player
-        self.numRounds=0
+        self.currentPlayerId =1  # returns random player
+
 
 
     def changePlayer(self):
-        self.currentPlayer = self.board.changePlayer(self.currentPlayer)
+        self.currentPlayerId = self.board.changePlayer(self.currentPlayerId)
+
+    def makeRandomGame(self,setGame,nextPlayerId):
+
+        newGame = ChopStickGame()
+        currentGameState = deepcopy(setGame)
+        newGame.setBoard(currentGameState)
+        newGame.setCurrentPlayerId(nextPlayerId)
+        newGame.replacePlayersWithRandomPlayer()
+        newGame.changePlayer()
+
+        return newGame
+
+    def replacePlayersWithRandomPlayer(self):
+        players = {}
+        for playerId in self.board.board:
+            players[playerId] = AiPlayer(playerId, RandomPlay())
+
+
+        self.players = players
+        return players
+
+
+    def getNumRound(self):
+        return self.numRounds
+
+    def setNumRound(self, numOfRounds):
+        self.numRounds = numOfRounds
+
+    def getBoard(self):
+        return self.board
+    def setBoard(self, stateBoard):
+        self.board = stateBoard
+
+    def setCurrentPlayerId(self,playerId):
+        self.currentPlayerId = playerId
+
 
     def getCurrentPlayerId(self):
-        return self.currentPlayer
+        return self.currentPlayerId
 
     def getCurrentPlayer(self):
-        currentPlayer = self.players[self.currentPlayer]
+        currentPlayer = self.players[self.currentPlayerId]
         return currentPlayer
 
     def getCurrentPlayerMove(self):
@@ -41,7 +78,14 @@ class ChopStickGame:
             numPlayers = int(input("Enter your choice now for the number Of Players"))
 
 
+        self.numOfPlayers = numPlayers
         return numPlayers
+
+    def getNumOfPlayers(self):
+        return self.numOfPlayers
+
+    def setNumOfPlayers(self, numOfPlayers):
+        self.numOfPlayers = numOfPlayers
 
     def createPlayers(self,gameBoard):
 
@@ -83,4 +127,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    game = ChopStickGame()
+    randomGame = game.makeRandomGame(game.getBoard(), 1)
+
+    randomGame.rungame()
+
