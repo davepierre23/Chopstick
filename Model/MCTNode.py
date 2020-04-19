@@ -1,6 +1,5 @@
-from Model.Game import ChopStickGame
 from copy import deepcopy
-class MonteCarloNode():
+class MonteCarloNode:
     def __init__(self, state, parent, action, depth, currentplayerId):
         self.state = state  # used has the state of the game
         self.parent = parent  # used to keep track of the parent

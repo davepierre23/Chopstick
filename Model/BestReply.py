@@ -26,7 +26,7 @@ class BestReply:
     def toString(self):
         return self.name
 
-    def searchMove(self,gameState, currentPlayerID,depthLimit=3):
+    def searchMove(self,gameState, currentPlayerID,depthLimit=2):
         print("Best-Reply Algorithem")
         copyGame = deepcopy(gameState)
         node = Node(copyGame, None, None, 0)
