@@ -6,6 +6,7 @@ from Max_n import Max_n
 from BestReply import  BestReply
 from RandomPlay import RandomPlay
 from copy import deepcopy
+
 import time
 class ChopStickGame:
     numOfAlgo = 3
@@ -28,7 +29,7 @@ class ChopStickGame:
         newGame.setBoard(currentGameState)
         newGame.setCurrentPlayerId(nextPlayerId)
         newGame.replacePlayersWithRandomPlayer()
-        newGame.changePlayer()
+
 
         return newGame
 
@@ -115,7 +116,7 @@ class ChopStickGame:
             self.changePlayer()
 
         print(self.board)
-        self.board.getWinner()
+        return self.board.getWinner()
 
 
 
@@ -127,8 +128,11 @@ def main():
 
 
 if __name__ == '__main__':
-    game = ChopStickGame()
-    randomGame = game.makeRandomGame(game.getBoard(), 1)
+    loop= []
+    for i in range(10):
+        game = ChopStickGame()
+        randomGame = game.makeRandomGame(game.getBoard(), 1)
+        loop.append(randomGame.rungame())
 
-    randomGame.rungame()
+    print(loop)
 
