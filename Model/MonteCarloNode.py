@@ -76,7 +76,7 @@ class MonteCarloNode():
             childNode = MonteCarloNode(childState, node, move, node.depth + 1, nextPlayerID)
             childNode.setCurrentPlayerId(nextPlayerID)
             childNodeList.append(childNode)
-            break
+
         return childNodeList
 
     def getChildren(self):
