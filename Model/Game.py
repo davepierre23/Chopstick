@@ -5,14 +5,16 @@ from Paranoid import Paranoid
 from Max_n import Max_n
 from BestReply import  BestReply
 from RandomPlay import RandomPlay
+from Model.MonteCarloTree import *
+
 from copy import deepcopy
 
 import time
 class ChopStickGame:
-    numOfAlgo = 3
+    numOfAlgo = 4
     def __init__(self):
 
-        self.numOfPlayers = 3
+        self.numOfPlayers = 4
         self.board = GameBoard(self.numOfPlayers)
         self.players = self.createPlayers(self.board)
         self.currentPlayerId =1  # returns random player
@@ -101,7 +103,11 @@ class ChopStickGame:
             elif(playerId %self.numOfAlgo==2):
                 players[playerId] = AiPlayer(playerId, BestReply())
 
+            elif(playerId%self.numOfAlgo ==3):
+                players[playerId] = AiPlayer(playerId,MonteCarloTreeSearch())
+
         return players
+
     def rungame(self):
 
         numOfRounds =0
@@ -128,11 +134,5 @@ def main():
 
 
 if __name__ == '__main__':
-    loop= []
-    for i in range(10):
-        game = ChopStickGame()
-        randomGame = game.makeRandomGame(game.getBoard(), 1)
-        loop.append(randomGame.rungame())
-
-    print(loop)
+    main()
 

@@ -1,11 +1,9 @@
 from Model.Game import ChopStickGame
-
-# main function for the Monte Carlo Tree Search
 from Model.MonteCarloNode import MonteCarloNode
 from Model.Common import *
 
 node_count = 0
-class MonteCarloTreeSearch:
+class MonteCarloTreeSearch():
 
     def __init__(self):
         self.name = "Monte Carlo Tree Search"
@@ -22,6 +20,9 @@ class MonteCarloTreeSearch:
 
     def toString(self):
         return self.name
+
+    def equals(self, other):
+        return self.name == other.name
 
     def searchMove(self,gameState,  maximizingPlayerId,depthLimit=2):
 

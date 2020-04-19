@@ -20,6 +20,9 @@ class BestReply:
     def __repr__(self):
         return self.toString()
 
+    def equals(self, other):
+        return self.name == other.name
+
     def toString(self):
         return self.name
 
