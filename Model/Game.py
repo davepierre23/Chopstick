@@ -14,7 +14,7 @@ class ChopStickGame:
     numOfAlgo = 3
     def __init__(self,createRandomPlayer=False):
 
-        self.numOfPlayers = 3
+        self.numOfPlayers = 4
         self.board = GameBoard(self.numOfPlayers)
         if(createRandomPlayer):
             self.players = self.replacePlayersWithRandomPlayer()
@@ -98,7 +98,7 @@ class ChopStickGame:
 
         players = {}
         for playerId in gameBoard.board:
-            if(playerId % self.numOfAlgo==0):
+            if(playerId % self.numOfAlgo==3):
                 players[playerId] = AiPlayer(playerId,Paranoid())
 
             elif(playerId %self.numOfAlgo==1):
@@ -107,9 +107,9 @@ class ChopStickGame:
             elif(playerId %self.numOfAlgo==2):
                 players[playerId] = AiPlayer(playerId, BestReply())
 
-            elif(playerId%self.numOfAlgo ==3):
+            elif(playerId%self.numOfAlgo ==0):
                 algo = MCTSearch()
-                players[playerId] = AiPlayer(playerId,algo)
+                players[playerId] = AiPlayer(playerId,Paranoid())
 
         return players
 

@@ -44,6 +44,7 @@ def heuristic(node,playerId):
 
 
 
+
 def generateChildState(initNode, currentPlayerId):
     possibleMoves = initNode.state.generateAllPossibleMoves(currentPlayerId)
 
