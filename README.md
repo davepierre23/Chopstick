@@ -1,1 +1,1 @@
-# 4106Project
+# Chopsticks Game
